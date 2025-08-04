@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Tracker Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📈 Stock Tracker Manager</h1>
+            <p class="subtitle">Manage your daily email stock watchlist</p>
+        </header>
+
+        <div class="config-info" id="configInfo">
+            <div class="info-item">
+                <span class="label">Email to:</span>
+                <span id="emailTo">Loading...</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Schedule:</span>
+                <span id="schedule">Loading...</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Status:</span>
+                <span id="status">Loading...</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="add-stock-section">
+                <h2>Add Stock Symbol</h2>
+                <div class="add-form">
+                    <input 
+                        type="text" 
+                        id="newSymbol" 
+                        placeholder="Enter stock symbol (e.g., AAPL)"
+                        maxlength="10"
+                    >
+                    <button id="addBtn" class="btn btn-primary">Add Stock</button>
+                </div>
+                <div id="errorMsg" class="error-message"></div>
+                <div id="successMsg" class="success-message"></div>
+            </div>
+
+            <div class="stocks-section">
+                <h2>Current Stock Watchlist</h2>
+                <div id="stocksList" class="stocks-list">
+                    <div class="loading">Loading stocks...</div>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h2>Live Preview</h2>
+                <button id="refreshPreview" class="btn btn-secondary">Refresh Prices</button>
+                <div id="previewArea" class="preview-area">
+                    <div class="loading">Click refresh to load current prices</div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Stock data updates will be sent daily to your configured email address.</p>
+            <p>Make sure to configure your email settings in the .env file.</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

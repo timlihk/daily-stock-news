@@ -1,0 +1,284 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.config-info {
+    background: #f8f9fa;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-item .label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.main-content {
+    padding: 40px;
+}
+
+.add-stock-section {
+    margin-bottom: 40px;
+}
+
+.add-stock-section h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.add-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+#newSymbol {
+    flex: 1;
+    padding: 12px 20px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 16px;
+    text-transform: uppercase;
+    transition: border-color 0.3s;
+}
+
+#newSymbol:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+.error-message, .success-message {
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+    display: none;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.stocks-section {
+    margin-bottom: 40px;
+}
+
+.stocks-section h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.stocks-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.stock-item {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.stock-item:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stock-symbol {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.preview-section {
+    margin-bottom: 40px;
+}
+
+.preview-section h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.preview-area {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.stock-preview {
+    background: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.stock-preview h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.stock-preview .price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.stock-preview .change {
+    font-size: 1.1rem;
+    margin-left: 10px;
+}
+
+.positive {
+    color: #28a745;
+}
+
+.negative {
+    color: #dc3545;
+}
+
+.stock-details {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.loading {
+    text-align: center;
+    color: #6c757d;
+    padding: 20px;
+}
+
+footer {
+    background: #f8f9fa;
+    padding: 30px 40px;
+    text-align: center;
+    color: #6c757d;
+    border-top: 1px solid #dee2e6;
+}
+
+footer p {
+    margin: 5px 0;
+}
+
+@media (max-width: 768px) {
+    .config-info {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .add-form {
+        flex-direction: column;
+    }
+    
+    .stocks-list {
+        grid-template-columns: 1fr;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+}

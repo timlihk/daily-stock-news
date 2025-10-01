@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import configManager from './config-manager.js';
 import { getStockData } from './stocks.js';
+import { getStockNews } from './news.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -72,8 +73,19 @@ app.put('/api/stocks', async (req, res) => {
 app.get('/api/stocks/preview', async (req, res) => {
   try {
     const symbols = await configManager.getStockSymbols();
-    const stockData = await getStockData(symbols.slice(0, 5));
+    const stockData = await getStockData(symbols);
     res.json({ success: true, data: stockData });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get('/api/news/preview', async (req, res) => {
+  try {
+    const config = configManager.getConfig();
+    const symbols = await configManager.getStockSymbols();
+    const newsData = await getStockNews(symbols, config.newsApiKey);
+    res.json({ success: true, data: newsData });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

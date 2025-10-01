@@ -201,8 +201,19 @@ header h1 {
     padding: 20px;
     border-radius: 10px;
     margin-top: 20px;
-    max-height: 400px;
+    max-height: 600px;
     overflow-y: auto;
+}
+
+.preview-stocks {
+    margin-bottom: 30px;
+}
+
+.preview-stocks h3,
+.preview-news h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
 }
 
 .stock-preview {
@@ -213,7 +224,8 @@ header h1 {
     border-left: 4px solid #667eea;
 }
 
-.stock-preview h3 {
+.stock-preview h3,
+.stock-preview h4 {
     color: #2c3e50;
     margin-bottom: 10px;
 }
@@ -262,6 +274,42 @@ footer {
 
 footer p {
     margin: 5px 0;
+}
+
+.news-item {
+    background: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.news-item h4 {
+    color: #2c3e50;
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+}
+
+.news-meta {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.news-description {
+    color: #495057;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.news-item a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.news-item a:hover {
+    text-decoration: underline;
 }
 
 @media (max-width: 768px) {

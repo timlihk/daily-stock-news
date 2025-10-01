@@ -138,61 +138,101 @@ class StockManager {
 
     async loadPreview() {
         const previewArea = document.getElementById('previewArea');
-        previewArea.innerHTML = '<div class="loading">Loading stock prices...</div>';
+        previewArea.innerHTML = '<div class="loading">Loading stock prices and news...</div>';
 
         try {
-            const response = await fetch('/api/stocks/preview');
-            const data = await response.json();
-            
-            if (data.success) {
-                this.renderPreview(data.data);
+            // Fetch both stocks and news in parallel
+            const [stocksResponse, newsResponse] = await Promise.all([
+                fetch('/api/stocks/preview'),
+                fetch('/api/news/preview')
+            ]);
+
+            const stocksData = await stocksResponse.json();
+            const newsData = await newsResponse.json();
+
+            if (stocksData.success && newsData.success) {
+                this.renderPreview(stocksData.data, newsData.data);
             } else {
                 previewArea.innerHTML = '<div class="loading">Failed to load preview</div>';
             }
         } catch (error) {
+            console.error('Error loading preview:', error);
             previewArea.innerHTML = '<div class="loading">Error loading preview</div>';
         }
     }
 
-    renderPreview(stocks) {
+    renderPreview(stocks, news) {
         const previewArea = document.getElementById('previewArea');
-        
+
         if (stocks.length === 0) {
             previewArea.innerHTML = '<div class="loading">No stocks to preview</div>';
             return;
         }
 
-        previewArea.innerHTML = stocks.map(stock => {
-            if (stock.error) {
-                return `
-                    <div class="stock-preview">
-                        <h3>${stock.symbol}</h3>
-                        <p style="color: #dc3545;">Error: ${stock.message}</p>
-                    </div>
-                `;
-            }
+        // Render stocks section
+        const stocksHtml = `
+            <div class="preview-stocks">
+                <h3>📈 Stock Prices</h3>
+                ${stocks.map(stock => {
+                    if (stock.error) {
+                        return `
+                            <div class="stock-preview">
+                                <h4>${stock.symbol}</h4>
+                                <p style="color: #dc3545;">Error: ${stock.message}</p>
+                            </div>
+                        `;
+                    }
 
-            const changeClass = stock.change >= 0 ? 'positive' : 'negative';
-            const changeSymbol = stock.change >= 0 ? '+' : '';
+                    const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+                    const changeSymbol = stock.change >= 0 ? '+' : '';
 
-            return `
-                <div class="stock-preview">
-                    <h3>${stock.symbol} - ${stock.name}</h3>
-                    <div>
-                        <span class="price">$${stock.price?.toFixed(2)}</span>
-                        <span class="change ${changeClass}">
-                            ${changeSymbol}${stock.change?.toFixed(2)} (${changeSymbol}${stock.changePercent?.toFixed(2)}%)
-                        </span>
-                    </div>
-                    <div class="stock-details">
-                        <div>Day Range: $${stock.dayLow?.toFixed(2)} - $${stock.dayHigh?.toFixed(2)}</div>
-                        <div>Volume: ${stock.volume?.toLocaleString()}</div>
-                        <div>Market Cap: $${(stock.marketCap / 1e9)?.toFixed(2)}B</div>
-                        <div>52W: $${stock.fiftyTwoWeekLow?.toFixed(2)} - $${stock.fiftyTwoWeekHigh?.toFixed(2)}</div>
-                    </div>
-                </div>
-            `;
-        }).join('');
+                    return `
+                        <div class="stock-preview">
+                            <h4>${stock.symbol} - ${stock.name}</h4>
+                            <div>
+                                <span class="price">$${stock.price?.toFixed(2)}</span>
+                                <span class="change ${changeClass}">
+                                    ${changeSymbol}${stock.change?.toFixed(2)} (${changeSymbol}${stock.changePercent?.toFixed(2)}%)
+                                </span>
+                            </div>
+                            <div class="stock-details">
+                                <div>Day Range: $${stock.dayLow?.toFixed(2)} - $${stock.dayHigh?.toFixed(2)}</div>
+                                <div>Volume: ${stock.volume?.toLocaleString()}</div>
+                                <div>Market Cap: $${(stock.marketCap / 1e9)?.toFixed(2)}B</div>
+                                <div>52W: $${stock.fiftyTwoWeekLow?.toFixed(2)} - $${stock.fiftyTwoWeekHigh?.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+
+        // Render news section
+        const newsHtml = `
+            <div class="preview-news">
+                <h3>📰 Latest News</h3>
+                ${news.length === 0 ? '<p>No news available</p>' : news.map(article => {
+                    const date = new Date(article.publishedAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+
+                    return `
+                        <div class="news-item">
+                            <h4>${article.title}</h4>
+                            <p class="news-meta">
+                                <strong>${article.symbol}</strong> | ${article.source} | ${date}
+                            </p>
+                            <p class="news-description">${article.description || 'No description available.'}</p>
+                            <a href="${article.url}" target="_blank" rel="noopener noreferrer">Read more →</a>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+
+        previewArea.innerHTML = stocksHtml + newsHtml;
     }
 
     showError(message) {

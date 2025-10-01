@@ -3,12 +3,12 @@ class StockManager {
         this.stocks = [];
         this.liveInterval = null;
         this.isLiveActive = false;
+        this.rowLimit = 10;
         this.init();
     }
 
     async init() {
         await this.loadStocks();
-        await this.loadConfig();
         this.setupEventListeners();
     }
 
@@ -17,81 +17,54 @@ class StockManager {
         document.getElementById('newSymbol').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.addStock();
         });
-        document.getElementById('refreshPreview').addEventListener('click', () => this.loadPreview());
         document.getElementById('toggleLive').addEventListener('click', () => this.toggleLivePrices());
-    }
-
-    async loadConfig() {
-        try {
-            const response = await fetch('/api/config');
-            const data = await response.json();
-            
-            if (data.success) {
-                document.getElementById('emailTo').textContent = data.config.emailTo;
-                document.getElementById('schedule').textContent = this.formatCron(data.config.cronSchedule);
-                
-                const statusEl = document.getElementById('status');
-                if (data.config.hasEmailConfig && data.config.hasNewsApi) {
-                    statusEl.textContent = '✅ Configured';
-                    statusEl.style.color = '#28a745';
-                } else {
-                    statusEl.textContent = '⚠️ Missing config';
-                    statusEl.style.color = '#ffc107';
-                }
-            }
-        } catch (error) {
-            console.error('Error loading config:', error);
-        }
-    }
-
-    formatCron(cronSchedule) {
-        if (cronSchedule === '0 8 * * *') return 'Daily at 8:00 AM';
-        if (cronSchedule === '0 9 * * 1-5') return 'Weekdays at 9:00 AM';
-        return cronSchedule;
+        document.getElementById('refreshNews').addEventListener('click', () => this.loadNews());
+        document.getElementById('rowLimit').addEventListener('change', (e) => {
+            this.rowLimit = parseInt(e.target.value);
+        });
     }
 
     async loadStocks() {
         try {
             const response = await fetch('/api/stocks');
             const data = await response.json();
-            
+
             if (data.success) {
                 this.stocks = data.symbols;
                 this.renderStocks();
             }
         } catch (error) {
             console.error('Error loading stocks:', error);
-            this.showError('Failed to load stocks');
         }
     }
 
     renderStocks() {
         const container = document.getElementById('stocksList');
-        
+
         if (this.stocks.length === 0) {
-            container.innerHTML = '<div class="loading">No stocks added yet. Add your first stock above!</div>';
+            container.innerHTML = '<div class="placeholder">No stocks added</div>';
             return;
         }
 
         container.innerHTML = this.stocks.map(symbol => `
-            <div class="stock-item" data-symbol="${symbol}">
-                <span class="stock-symbol">${symbol}</span>
-                <button class="btn btn-danger" onclick="stockManager.removeStock('${symbol}')">Remove</button>
-            </div>
+            <span class="stock-tag">
+                ${symbol}
+                <button class="remove-btn" onclick="stockManager.removeStock('${symbol}')">&times;</button>
+            </span>
         `).join('');
     }
 
     async addStock() {
         const input = document.getElementById('newSymbol');
         const symbol = input.value.trim().toUpperCase();
-        
+
         if (!symbol) {
-            this.showError('Please enter a stock symbol');
+            this.showError('Enter a symbol');
             return;
         }
 
         if (!/^[A-Z0-9\.\-]{1,10}$/.test(symbol)) {
-            this.showError('Invalid symbol format');
+            this.showError('Invalid format');
             return;
         }
 
@@ -101,141 +74,188 @@ class StockManager {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ symbol })
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 this.stocks = data.symbols;
                 this.renderStocks();
                 input.value = '';
-                this.showSuccess(`Added ${symbol} to watchlist`);
+                this.showSuccess(`Added ${symbol}`);
             } else {
                 this.showError(data.error);
             }
         } catch (error) {
-            this.showError('Failed to add stock');
+            this.showError('Failed to add');
         }
     }
 
     async removeStock(symbol) {
-        if (!confirm(`Remove ${symbol} from watchlist?`)) return;
+        if (!confirm(`Remove ${symbol}?`)) return;
 
         try {
             const response = await fetch(`/api/stocks/${symbol}`, {
                 method: 'DELETE'
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 this.stocks = data.symbols;
                 this.renderStocks();
-                this.showSuccess(`Removed ${symbol} from watchlist`);
+                this.showSuccess(`Removed ${symbol}`);
             } else {
                 this.showError(data.error);
             }
         } catch (error) {
-            this.showError('Failed to remove stock');
+            this.showError('Failed to remove');
         }
     }
 
-    async loadPreview() {
-        const previewArea = document.getElementById('previewArea');
-        previewArea.innerHTML = '<div class="loading">Loading stock prices and news...</div>';
+    toggleLivePrices() {
+        if (this.isLiveActive) {
+            this.stopLivePrices();
+        } else {
+            this.startLivePrices();
+        }
+    }
 
+    startLivePrices() {
+        this.isLiveActive = true;
+        const toggleBtn = document.getElementById('toggleLive');
+        const statusEl = document.getElementById('liveStatus');
+
+        toggleBtn.textContent = 'Stop';
+        toggleBtn.className = 'btn btn-sm btn-danger';
+        statusEl.className = 'status live';
+
+        this.updateLivePrices();
+        this.liveInterval = setInterval(() => {
+            this.updateLivePrices();
+        }, 1000);
+    }
+
+    stopLivePrices() {
+        this.isLiveActive = false;
+        const toggleBtn = document.getElementById('toggleLive');
+        const statusEl = document.getElementById('liveStatus');
+
+        toggleBtn.textContent = 'Start';
+        toggleBtn.className = 'btn btn-sm btn-success';
+        statusEl.className = 'status';
+
+        if (this.liveInterval) {
+            clearInterval(this.liveInterval);
+            this.liveInterval = null;
+        }
+    }
+
+    async updateLivePrices() {
         try {
-            // Fetch both stocks and news in parallel
-            const [stocksResponse, newsResponse] = await Promise.all([
-                fetch('/api/stocks/preview'),
-                fetch('/api/news/preview')
-            ]);
+            const response = await fetch('/api/stocks/live');
+            const data = await response.json();
 
-            const stocksData = await stocksResponse.json();
-            const newsData = await newsResponse.json();
-
-            if (stocksData.success && newsData.success) {
-                this.renderPreview(stocksData.data, newsData.data);
-            } else {
-                previewArea.innerHTML = '<div class="loading">Failed to load preview</div>';
+            if (data.success) {
+                this.renderLivePrices(data.data);
             }
         } catch (error) {
-            console.error('Error loading preview:', error);
-            previewArea.innerHTML = '<div class="loading">Error loading preview</div>';
+            console.error('Error updating live prices:', error);
         }
     }
 
-    renderPreview(stocks, news) {
-        const previewArea = document.getElementById('previewArea');
+    renderLivePrices(stocks) {
+        const container = document.getElementById('livePrices');
 
         if (stocks.length === 0) {
-            previewArea.innerHTML = '<div class="loading">No stocks to preview</div>';
+            container.innerHTML = '<div class="placeholder">No stocks in watchlist</div>';
             return;
         }
 
-        // Render stocks section
-        const stocksHtml = `
-            <div class="preview-stocks">
-                <h3>📈 Stock Prices</h3>
-                ${stocks.map(stock => {
-                    if (stock.error) {
+        const displayStocks = stocks.slice(0, this.rowLimit);
+
+        container.innerHTML = `
+            <table class="price-table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${displayStocks.map(stock => {
+                        if (stock.error) {
+                            return `
+                                <tr>
+                                    <td>${stock.symbol}</td>
+                                    <td colspan="3" class="error">Error</td>
+                                </tr>
+                            `;
+                        }
+
+                        const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+                        const changeSymbol = stock.change >= 0 ? '+' : '';
+
                         return `
-                            <div class="stock-preview">
-                                <h4>${stock.symbol}</h4>
-                                <p style="color: #dc3545;">Error: ${stock.message}</p>
-                            </div>
+                            <tr>
+                                <td class="ticker">${stock.symbol}</td>
+                                <td class="price">$${stock.price?.toFixed(2)}</td>
+                                <td class="${changeClass}">${changeSymbol}${stock.change?.toFixed(2)}</td>
+                                <td class="${changeClass}">${changeSymbol}${stock.changePercent?.toFixed(2)}%</td>
+                            </tr>
                         `;
-                    }
-
-                    const changeClass = stock.change >= 0 ? 'positive' : 'negative';
-                    const changeSymbol = stock.change >= 0 ? '+' : '';
-
-                    return `
-                        <div class="stock-preview">
-                            <h4>${stock.symbol} - ${stock.name}</h4>
-                            <div>
-                                <span class="price">$${stock.price?.toFixed(2)}</span>
-                                <span class="change ${changeClass}">
-                                    ${changeSymbol}${stock.change?.toFixed(2)} (${changeSymbol}${stock.changePercent?.toFixed(2)}%)
-                                </span>
-                            </div>
-                            <div class="stock-details">
-                                <div>Day Range: $${stock.dayLow?.toFixed(2)} - $${stock.dayHigh?.toFixed(2)}</div>
-                                <div>Volume: ${stock.volume?.toLocaleString()}</div>
-                                <div>Market Cap: $${(stock.marketCap / 1e9)?.toFixed(2)}B</div>
-                                <div>52W: $${stock.fiftyTwoWeekLow?.toFixed(2)} - $${stock.fiftyTwoWeekHigh?.toFixed(2)}</div>
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
+                    }).join('')}
+                </tbody>
+            </table>
         `;
+    }
 
-        // Render news section
-        const newsHtml = `
-            <div class="preview-news">
-                <h3>📰 Latest News</h3>
-                ${news.length === 0 ? '<p>No news available</p>' : news.map(article => {
-                    const date = new Date(article.publishedAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                    });
+    async loadNews() {
+        const newsArea = document.getElementById('newsArea');
+        newsArea.innerHTML = '<div class="placeholder">Loading news...</div>';
 
-                    return `
-                        <div class="news-item">
-                            <h4>${article.title}</h4>
-                            <p class="news-meta">
-                                <strong>${article.symbol}</strong> | ${article.source} | ${date}
-                            </p>
-                            <p class="news-description">${article.description || 'No description available.'}</p>
-                            <a href="${article.url}" target="_blank" rel="noopener noreferrer">Read more →</a>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        `;
+        try {
+            const response = await fetch('/api/news/preview');
+            const data = await response.json();
 
-        previewArea.innerHTML = stocksHtml + newsHtml;
+            if (data.success) {
+                this.renderNews(data.data);
+            } else {
+                newsArea.innerHTML = '<div class="placeholder">Failed to load</div>';
+            }
+        } catch (error) {
+            newsArea.innerHTML = '<div class="placeholder">Error loading</div>';
+        }
+    }
+
+    renderNews(news) {
+        const newsArea = document.getElementById('newsArea');
+
+        if (news.length === 0) {
+            newsArea.innerHTML = '<div class="placeholder">No news available</div>';
+            return;
+        }
+
+        newsArea.innerHTML = news.map(article => {
+            const date = new Date(article.publishedAt).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric'
+            });
+
+            return `
+                <div class="news-item">
+                    <div class="news-header">
+                        <span class="news-ticker">${article.symbol}</span>
+                        <span class="news-date">${date}</span>
+                    </div>
+                    <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="news-title">
+                        ${article.title}
+                    </a>
+                    <p class="news-source">${article.source}</p>
+                </div>
+            `;
+        }).join('');
     }
 
     showError(message) {
@@ -254,104 +274,6 @@ class StockManager {
         setTimeout(() => {
             successEl.style.display = 'none';
         }, 3000);
-    }
-
-    toggleLivePrices() {
-        if (this.isLiveActive) {
-            this.stopLivePrices();
-        } else {
-            this.startLivePrices();
-        }
-    }
-
-    startLivePrices() {
-        this.isLiveActive = true;
-        const toggleBtn = document.getElementById('toggleLive');
-        const statusEl = document.getElementById('liveStatus');
-
-        toggleBtn.textContent = 'Stop Live Feed';
-        toggleBtn.className = 'btn btn-danger';
-        statusEl.textContent = '🟢 Live';
-        statusEl.style.color = '#28a745';
-
-        // Initial load
-        this.updateLivePrices();
-
-        // Update every second
-        this.liveInterval = setInterval(() => {
-            this.updateLivePrices();
-        }, 1000);
-    }
-
-    stopLivePrices() {
-        this.isLiveActive = false;
-        const toggleBtn = document.getElementById('toggleLive');
-        const statusEl = document.getElementById('liveStatus');
-
-        toggleBtn.textContent = 'Start Live Feed';
-        toggleBtn.className = 'btn btn-success';
-        statusEl.textContent = 'Stopped';
-        statusEl.style.color = '#6c757d';
-
-        if (this.liveInterval) {
-            clearInterval(this.liveInterval);
-            this.liveInterval = null;
-        }
-    }
-
-    async updateLivePrices() {
-        try {
-            const response = await fetch('/api/stocks/live');
-            const data = await response.json();
-
-            if (data.success) {
-                this.renderLivePrices(data.data);
-                const lastUpdate = document.getElementById('lastUpdate');
-                const time = new Date(data.timestamp).toLocaleTimeString();
-                lastUpdate.textContent = `Last update: ${time}`;
-            }
-        } catch (error) {
-            console.error('Error updating live prices:', error);
-        }
-    }
-
-    renderLivePrices(stocks) {
-        const container = document.getElementById('livePrices');
-
-        if (stocks.length === 0) {
-            container.innerHTML = '<div class="loading">No stocks in watchlist</div>';
-            return;
-        }
-
-        container.innerHTML = stocks.map(stock => {
-            if (stock.error) {
-                return `
-                    <div class="live-price-item error">
-                        <span class="symbol">${stock.symbol}</span>
-                        <span class="error-text">Error loading</span>
-                    </div>
-                `;
-            }
-
-            const changeClass = stock.change >= 0 ? 'positive' : 'negative';
-            const changeSymbol = stock.change >= 0 ? '+' : '';
-            const arrow = stock.change >= 0 ? '▲' : '▼';
-
-            return `
-                <div class="live-price-item">
-                    <div class="live-symbol">
-                        <span class="symbol">${stock.symbol}</span>
-                        <span class="name">${stock.name}</span>
-                    </div>
-                    <div class="live-price-data">
-                        <span class="price">$${stock.price?.toFixed(2)}</span>
-                        <span class="change ${changeClass}">
-                            ${arrow} ${changeSymbol}${stock.change?.toFixed(2)} (${changeSymbol}${stock.changePercent?.toFixed(2)}%)
-                        </span>
-                    </div>
-                </div>
-            `;
-        }).join('');
     }
 }
 

@@ -3,81 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Tracker Manager</title>
+    <title>Stock Tracker</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>📈 Stock Tracker Manager</h1>
-            <p class="subtitle">Manage your daily email stock watchlist</p>
+            <h1>Stock Tracker</h1>
         </header>
 
-        <div class="config-info" id="configInfo">
-            <div class="info-item">
-                <span class="label">Email to:</span>
-                <span id="emailTo">Loading...</span>
-            </div>
-            <div class="info-item">
-                <span class="label">Schedule:</span>
-                <span id="schedule">Loading...</span>
-            </div>
-            <div class="info-item">
-                <span class="label">Status:</span>
-                <span id="status">Loading...</span>
-            </div>
-        </div>
-
         <div class="main-content">
-            <div class="live-prices-section">
-                <div class="live-header">
-                    <h2>🔴 Live Prices</h2>
-                    <div class="live-controls">
-                        <button id="toggleLive" class="btn btn-success">Start Live Feed</button>
-                        <span id="liveStatus" class="live-status">Stopped</span>
-                        <span id="lastUpdate" class="last-update"></span>
+            <!-- Live Prices -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>Live Prices</h2>
+                    <div class="controls">
+                        <select id="rowLimit" class="compact-select">
+                            <option value="10">10 rows</option>
+                            <option value="25">25 rows</option>
+                            <option value="50">50 rows</option>
+                        </select>
+                        <button id="toggleLive" class="btn btn-sm btn-success">Start</button>
+                        <span id="liveStatus" class="status">●</span>
                     </div>
                 </div>
                 <div id="livePrices" class="live-prices">
-                    <div class="loading">Click "Start Live Feed" to begin real-time price updates</div>
+                    <div class="placeholder">Click Start to begin</div>
                 </div>
-            </div>
+            </section>
 
-            <div class="add-stock-section">
-                <h2>Add Stock Symbol</h2>
+            <!-- Manage Stocks -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>Manage Stocks</h2>
+                </div>
                 <div class="add-form">
-                    <input
-                        type="text"
-                        id="newSymbol"
-                        placeholder="Enter stock symbol (e.g., AAPL)"
-                        maxlength="10"
-                    >
-                    <button id="addBtn" class="btn btn-primary">Add Stock</button>
+                    <input type="text" id="newSymbol" placeholder="Add ticker (e.g., AAPL)" maxlength="10">
+                    <button id="addBtn" class="btn btn-sm">Add</button>
                 </div>
-                <div id="errorMsg" class="error-message"></div>
-                <div id="successMsg" class="success-message"></div>
-            </div>
+                <div id="errorMsg" class="message error"></div>
+                <div id="successMsg" class="message success"></div>
+                <div id="stocksList" class="stocks-list"></div>
+            </section>
 
-            <div class="stocks-section">
-                <h2>Current Stock Watchlist</h2>
-                <div id="stocksList" class="stocks-list">
-                    <div class="loading">Loading stocks...</div>
+            <!-- Latest News -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>Latest News</h2>
+                    <button id="refreshNews" class="btn btn-sm">Refresh</button>
                 </div>
-            </div>
-
-            <div class="preview-section">
-                <h2>Live Preview</h2>
-                <button id="refreshPreview" class="btn btn-secondary">Refresh Prices & News</button>
-                <div id="previewArea" class="preview-area">
-                    <div class="loading">Click refresh to load current prices and news for all tickers</div>
+                <div id="newsArea" class="news-area">
+                    <div class="placeholder">Click Refresh to load news</div>
                 </div>
-            </div>
+            </section>
         </div>
-
-        <footer>
-            <p>Stock data updates will be sent daily to your configured email address.</p>
-            <p>Make sure to configure your email settings in the .env file.</p>
-        </footer>
     </div>
 
     <script src="app.js"></script>

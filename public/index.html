@@ -29,12 +29,26 @@
         </div>
 
         <div class="main-content">
+            <div class="live-prices-section">
+                <div class="live-header">
+                    <h2>🔴 Live Prices</h2>
+                    <div class="live-controls">
+                        <button id="toggleLive" class="btn btn-success">Start Live Feed</button>
+                        <span id="liveStatus" class="live-status">Stopped</span>
+                        <span id="lastUpdate" class="last-update"></span>
+                    </div>
+                </div>
+                <div id="livePrices" class="live-prices">
+                    <div class="loading">Click "Start Live Feed" to begin real-time price updates</div>
+                </div>
+            </div>
+
             <div class="add-stock-section">
                 <h2>Add Stock Symbol</h2>
                 <div class="add-form">
-                    <input 
-                        type="text" 
-                        id="newSymbol" 
+                    <input
+                        type="text"
+                        id="newSymbol"
                         placeholder="Enter stock symbol (e.g., AAPL)"
                         maxlength="10"
                     >

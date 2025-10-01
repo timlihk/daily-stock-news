@@ -80,6 +80,16 @@ app.get('/api/stocks/preview', async (req, res) => {
   }
 });
 
+app.get('/api/stocks/live', async (req, res) => {
+  try {
+    const symbols = await configManager.getStockSymbols();
+    const stockData = await getStockData(symbols);
+    res.json({ success: true, data: stockData, timestamp: new Date().toISOString() });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 app.get('/api/news/preview', async (req, res) => {
   try {
     const config = configManager.getConfig();

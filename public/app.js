@@ -1,6 +1,8 @@
 class StockManager {
     constructor() {
         this.stocks = [];
+        this.liveInterval = null;
+        this.isLiveActive = false;
         this.init();
     }
 
@@ -16,6 +18,7 @@ class StockManager {
             if (e.key === 'Enter') this.addStock();
         });
         document.getElementById('refreshPreview').addEventListener('click', () => this.loadPreview());
+        document.getElementById('toggleLive').addEventListener('click', () => this.toggleLivePrices());
     }
 
     async loadConfig() {
@@ -251,6 +254,104 @@ class StockManager {
         setTimeout(() => {
             successEl.style.display = 'none';
         }, 3000);
+    }
+
+    toggleLivePrices() {
+        if (this.isLiveActive) {
+            this.stopLivePrices();
+        } else {
+            this.startLivePrices();
+        }
+    }
+
+    startLivePrices() {
+        this.isLiveActive = true;
+        const toggleBtn = document.getElementById('toggleLive');
+        const statusEl = document.getElementById('liveStatus');
+
+        toggleBtn.textContent = 'Stop Live Feed';
+        toggleBtn.className = 'btn btn-danger';
+        statusEl.textContent = '🟢 Live';
+        statusEl.style.color = '#28a745';
+
+        // Initial load
+        this.updateLivePrices();
+
+        // Update every second
+        this.liveInterval = setInterval(() => {
+            this.updateLivePrices();
+        }, 1000);
+    }
+
+    stopLivePrices() {
+        this.isLiveActive = false;
+        const toggleBtn = document.getElementById('toggleLive');
+        const statusEl = document.getElementById('liveStatus');
+
+        toggleBtn.textContent = 'Start Live Feed';
+        toggleBtn.className = 'btn btn-success';
+        statusEl.textContent = 'Stopped';
+        statusEl.style.color = '#6c757d';
+
+        if (this.liveInterval) {
+            clearInterval(this.liveInterval);
+            this.liveInterval = null;
+        }
+    }
+
+    async updateLivePrices() {
+        try {
+            const response = await fetch('/api/stocks/live');
+            const data = await response.json();
+
+            if (data.success) {
+                this.renderLivePrices(data.data);
+                const lastUpdate = document.getElementById('lastUpdate');
+                const time = new Date(data.timestamp).toLocaleTimeString();
+                lastUpdate.textContent = `Last update: ${time}`;
+            }
+        } catch (error) {
+            console.error('Error updating live prices:', error);
+        }
+    }
+
+    renderLivePrices(stocks) {
+        const container = document.getElementById('livePrices');
+
+        if (stocks.length === 0) {
+            container.innerHTML = '<div class="loading">No stocks in watchlist</div>';
+            return;
+        }
+
+        container.innerHTML = stocks.map(stock => {
+            if (stock.error) {
+                return `
+                    <div class="live-price-item error">
+                        <span class="symbol">${stock.symbol}</span>
+                        <span class="error-text">Error loading</span>
+                    </div>
+                `;
+            }
+
+            const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+            const changeSymbol = stock.change >= 0 ? '+' : '';
+            const arrow = stock.change >= 0 ? '▲' : '▼';
+
+            return `
+                <div class="live-price-item">
+                    <div class="live-symbol">
+                        <span class="symbol">${stock.symbol}</span>
+                        <span class="name">${stock.name}</span>
+                    </div>
+                    <div class="live-price-data">
+                        <span class="price">$${stock.price?.toFixed(2)}</span>
+                        <span class="change ${changeClass}">
+                            ${arrow} ${changeSymbol}${stock.change?.toFixed(2)} (${changeSymbol}${stock.changePercent?.toFixed(2)}%)
+                        </span>
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 }
 

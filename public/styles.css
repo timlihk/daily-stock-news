@@ -134,6 +134,15 @@ header h1 {
     border-bottom: 1px solid #ddd;
 }
 
+.price-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.price-table th.sortable:hover {
+    background: #e9ecef;
+}
+
 .price-table td {
     padding: 5px 8px;
     border-bottom: 1px solid #f0f0f0;
@@ -163,6 +172,11 @@ header h1 {
 .error {
     color: #dc3545;
     font-size: 11px;
+}
+
+.volume {
+    font-size: 11px;
+    color: #6c757d;
 }
 
 /* Manage Stocks */

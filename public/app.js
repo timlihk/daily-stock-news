@@ -4,6 +4,9 @@ class StockManager {
         this.liveInterval = null;
         this.isLiveActive = false;
         this.rowLimit = 10;
+        this.sortColumn = null;
+        this.sortDirection = 'asc';
+        this.currentStockData = [];
         this.init();
     }
 
@@ -156,11 +159,68 @@ class StockManager {
             const data = await response.json();
 
             if (data.success) {
-                this.renderLivePrices(data.data);
+                this.currentStockData = data.data;
+                this.renderLivePrices(this.currentStockData);
             }
         } catch (error) {
             console.error('Error updating live prices:', error);
         }
+    }
+
+    sortBy(column) {
+        if (this.sortColumn === column) {
+            // Toggle direction if same column
+            this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // New column, default to ascending
+            this.sortColumn = column;
+            this.sortDirection = 'asc';
+        }
+
+        const sortedData = [...this.currentStockData].sort((a, b) => {
+            // Filter out error stocks
+            if (a.error) return 1;
+            if (b.error) return -1;
+
+            let aVal, bVal;
+
+            switch(column) {
+                case 'ticker':
+                    aVal = a.symbol;
+                    bVal = b.symbol;
+                    break;
+                case 'price':
+                    aVal = a.price || 0;
+                    bVal = b.price || 0;
+                    break;
+                case 'change':
+                    aVal = a.change || 0;
+                    bVal = b.change || 0;
+                    break;
+                case 'percent':
+                    aVal = a.changePercent || 0;
+                    bVal = b.changePercent || 0;
+                    break;
+                case 'volume':
+                    aVal = a.volume || 0;
+                    bVal = b.volume || 0;
+                    break;
+                default:
+                    return 0;
+            }
+
+            if (typeof aVal === 'string') {
+                return this.sortDirection === 'asc'
+                    ? aVal.localeCompare(bVal)
+                    : bVal.localeCompare(aVal);
+            } else {
+                return this.sortDirection === 'asc'
+                    ? aVal - bVal
+                    : bVal - aVal;
+            }
+        });
+
+        this.renderLivePrices(sortedData);
     }
 
     renderLivePrices(stocks) {
@@ -173,14 +233,30 @@ class StockManager {
 
         const displayStocks = stocks.slice(0, this.rowLimit);
 
+        const getSortIcon = (column) => {
+            if (this.sortColumn !== column) return '⇅';
+            return this.sortDirection === 'asc' ? '↑' : '↓';
+        };
+
         container.innerHTML = `
             <table class="price-table">
                 <thead>
                     <tr>
-                        <th>Ticker</th>
-                        <th>Price</th>
-                        <th>Change</th>
-                        <th>%</th>
+                        <th class="sortable" onclick="stockManager.sortBy('ticker')">
+                            Ticker ${getSortIcon('ticker')}
+                        </th>
+                        <th class="sortable" onclick="stockManager.sortBy('price')">
+                            Price ${getSortIcon('price')}
+                        </th>
+                        <th class="sortable" onclick="stockManager.sortBy('change')">
+                            Change ${getSortIcon('change')}
+                        </th>
+                        <th class="sortable" onclick="stockManager.sortBy('percent')">
+                            % ${getSortIcon('percent')}
+                        </th>
+                        <th class="sortable" onclick="stockManager.sortBy('volume')">
+                            Volume ${getSortIcon('volume')}
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -189,13 +265,20 @@ class StockManager {
                             return `
                                 <tr>
                                     <td>${stock.symbol}</td>
-                                    <td colspan="3" class="error">Error</td>
+                                    <td colspan="4" class="error">Error</td>
                                 </tr>
                             `;
                         }
 
                         const changeClass = stock.change >= 0 ? 'positive' : 'negative';
                         const changeSymbol = stock.change >= 0 ? '+' : '';
+                        const formatVolume = (vol) => {
+                            if (!vol) return 'N/A';
+                            if (vol >= 1e9) return `${(vol / 1e9).toFixed(2)}B`;
+                            if (vol >= 1e6) return `${(vol / 1e6).toFixed(2)}M`;
+                            if (vol >= 1e3) return `${(vol / 1e3).toFixed(2)}K`;
+                            return vol.toLocaleString();
+                        };
 
                         return `
                             <tr>
@@ -203,6 +286,7 @@ class StockManager {
                                 <td class="price">$${stock.price?.toFixed(2)}</td>
                                 <td class="${changeClass}">${changeSymbol}${stock.change?.toFixed(2)}</td>
                                 <td class="${changeClass}">${changeSymbol}${stock.changePercent?.toFixed(2)}%</td>
+                                <td class="volume">${formatVolume(stock.volume)}</td>
                             </tr>
                         `;
                     }).join('')}

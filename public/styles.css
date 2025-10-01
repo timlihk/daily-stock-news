@@ -414,22 +414,18 @@ body {
 .news-feed {
     flex: 1;
     overflow-y: auto;
-    overflow-x: auto;
+    overflow-x: hidden;
     padding: 0;
     display: flex;
-    flex-wrap: nowrap;
-    align-items: flex-start;
+    flex-direction: column;
 }
 
 .news-item {
     padding: 16px;
-    margin-right: 1px;
     background: #000;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.1s;
-    min-width: 350px;
-    max-width: 350px;
-    flex-shrink: 0;
+    width: 100%;
 }
 
 .news-item:hover {
@@ -530,10 +526,5 @@ body {
     .panel-controls {
         width: 100%;
         justify-content: flex-end;
-    }
-
-    .news-item {
-        min-width: 280px;
-        max-width: 280px;
     }
 }

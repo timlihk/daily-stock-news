@@ -24,6 +24,10 @@ class StockManager {
         document.getElementById('refreshNews').addEventListener('click', () => this.loadNews());
         document.getElementById('rowLimit').addEventListener('change', (e) => {
             this.rowLimit = parseInt(e.target.value);
+            // Re-render with new limit if data exists
+            if (this.currentStockData.length > 0) {
+                this.renderLivePrices(this.currentStockData);
+            }
         });
     }
 

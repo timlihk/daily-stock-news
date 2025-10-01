@@ -21,33 +21,33 @@
 
         <!-- Main Grid -->
         <div class="grid-container">
-            <!-- Left Panel - Live Prices -->
-            <div class="panel panel-main">
-                <div class="panel-header">
-                    <div class="panel-title">
-                        <span class="panel-icon">■</span>
-                        LIVE MARKET DATA
+            <!-- Top Section - Live Prices & Watchlist -->
+            <div class="top-section">
+                <!-- Live Prices -->
+                <div class="panel panel-main">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span class="panel-icon">■</span>
+                            LIVE MARKET DATA
+                        </div>
+                        <div class="panel-controls">
+                            <select id="rowLimit" class="terminal-select">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                            <button id="toggleLive" class="terminal-btn btn-primary">START</button>
+                        </div>
                     </div>
-                    <div class="panel-controls">
-                        <select id="rowLimit" class="terminal-select">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                        </select>
-                        <button id="toggleLive" class="terminal-btn btn-primary">START</button>
+                    <div class="panel-content">
+                        <div id="livePrices" class="price-grid">
+                            <div class="terminal-placeholder">CLICK START TO BEGIN LIVE FEED</div>
+                        </div>
                     </div>
                 </div>
-                <div class="panel-content">
-                    <div id="livePrices" class="price-grid">
-                        <div class="terminal-placeholder">CLICK START TO BEGIN LIVE FEED</div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Right Panel - News & Management -->
-            <div class="panel-sidebar">
                 <!-- Watchlist Management -->
-                <div class="panel panel-compact">
+                <div class="panel panel-sidebar">
                     <div class="panel-header">
                         <div class="panel-title">
                             <span class="panel-icon">+</span>
@@ -64,20 +64,20 @@
                         <div id="stocksList" class="ticker-list"></div>
                     </div>
                 </div>
+            </div>
 
-                <!-- News Feed -->
-                <div class="panel panel-news">
-                    <div class="panel-header">
-                        <div class="panel-title">
-                            <span class="panel-icon">📰</span>
-                            MARKET NEWS
-                        </div>
-                        <button id="refreshNews" class="terminal-btn btn-small">REFRESH</button>
+            <!-- Bottom Section - News Feed -->
+            <div class="panel panel-news-bottom">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="panel-icon">📰</span>
+                        MARKET NEWS
                     </div>
-                    <div class="panel-content">
-                        <div id="newsArea" class="news-feed">
-                            <div class="terminal-placeholder">CLICK REFRESH TO LOAD NEWS</div>
-                        </div>
+                    <button id="refreshNews" class="terminal-btn btn-small">REFRESH</button>
+                </div>
+                <div class="panel-content">
+                    <div id="newsArea" class="news-feed">
+                        <div class="terminal-placeholder">CLICK REFRESH TO LOAD NEWS</div>
                     </div>
                 </div>
             </div>

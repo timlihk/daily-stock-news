@@ -74,12 +74,19 @@ body {
 /* Grid Layout */
 .grid-container {
     display: grid;
-    grid-template-columns: 1fr 360px;
+    grid-template-rows: 1fr auto;
     gap: 0;
     padding: 0;
     height: calc(100vh - 57px);
     overflow: hidden;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.top-section {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 0;
+    overflow: hidden;
 }
 
 /* Panels */
@@ -97,21 +104,17 @@ body {
 }
 
 .panel-sidebar {
+    border-right: none;
     display: flex;
     flex-direction: column;
-    gap: 0;
     overflow-y: auto;
+}
+
+.panel-news-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     border-right: none;
-}
-
-.panel-compact {
-    flex-shrink: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.panel-news {
-    flex: 1;
-    min-height: 0;
+    max-height: 300px;
+    overflow: hidden;
 }
 
 .panel-header {
@@ -409,15 +412,22 @@ body {
 .news-feed {
     flex: 1;
     overflow-y: auto;
+    overflow-x: auto;
     padding: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
 }
 
 .news-item {
     padding: 16px;
-    margin-bottom: 0;
+    margin-right: 1px;
     background: #000;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.1s;
+    min-width: 350px;
+    max-width: 350px;
+    flex-shrink: 0;
 }
 
 .news-item:hover {
@@ -496,27 +506,19 @@ body {
 
 /* Responsive */
 @media (max-width: 1024px) {
-    .grid-container {
+    .top-section {
         grid-template-columns: 1fr;
-        grid-template-rows: 60% 40%;
+        grid-template-rows: 1fr auto;
     }
 
     .panel-sidebar {
-        flex-direction: row;
-        overflow-x: auto;
-    }
-
-    .panel-compact,
-    .panel-news {
-        min-width: 300px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-right: none;
+        max-height: 200px;
     }
 }
 
 @media (max-width: 768px) {
-    .grid-container {
-        grid-template-rows: auto;
-    }
-
     .panel-header {
         flex-direction: column;
         align-items: flex-start;
@@ -526,5 +528,10 @@ body {
     .panel-controls {
         width: 100%;
         justify-content: flex-end;
+    }
+
+    .news-item {
+        min-width: 280px;
+        max-width: 280px;
     }
 }

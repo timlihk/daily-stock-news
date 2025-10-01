@@ -73,8 +73,8 @@ body {
 
 /* Grid Layout */
 .grid-container {
-    display: grid;
-    grid-template-rows: 1fr auto;
+    display: flex;
+    flex-direction: column;
     gap: 0;
     padding: 0;
     height: calc(100vh - 57px);
@@ -86,7 +86,8 @@ body {
     display: grid;
     grid-template-columns: 1fr 360px;
     gap: 0;
-    overflow: hidden;
+    flex: 0 0 auto;
+    min-height: 0;
 }
 
 /* Panels */
@@ -99,7 +100,7 @@ body {
 }
 
 .panel-main {
-    height: 100%;
+    max-height: 500px;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -108,12 +109,13 @@ body {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    max-height: 500px;
 }
 
 .panel-news-bottom {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     border-right: none;
-    max-height: 300px;
+    flex: 0 0 250px;
     overflow: hidden;
 }
 

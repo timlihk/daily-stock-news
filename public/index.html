@@ -3,59 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Tracker</title>
+    <title>Stock Terminal</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Stock Tracker</h1>
-        </header>
+    <div class="terminal">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="logo">STOCK TERMINAL</div>
+            <div class="top-controls">
+                <div class="status-indicator">
+                    <span id="liveStatus" class="status-dot"></span>
+                    <span id="statusText">OFFLINE</span>
+                </div>
+            </div>
+        </div>
 
-        <div class="main-content">
-            <!-- Live Prices -->
-            <section class="section">
-                <div class="section-header">
-                    <h2>Live Prices</h2>
-                    <div class="controls">
-                        <select id="rowLimit" class="compact-select">
-                            <option value="10">10 rows</option>
-                            <option value="25">25 rows</option>
-                            <option value="50">50 rows</option>
+        <!-- Main Grid -->
+        <div class="grid-container">
+            <!-- Left Panel - Live Prices -->
+            <div class="panel panel-main">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="panel-icon">■</span>
+                        LIVE MARKET DATA
+                    </div>
+                    <div class="panel-controls">
+                        <select id="rowLimit" class="terminal-select">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
                         </select>
-                        <button id="toggleLive" class="btn btn-sm btn-success">Start</button>
-                        <span id="liveStatus" class="status">●</span>
+                        <button id="toggleLive" class="terminal-btn btn-primary">START</button>
                     </div>
                 </div>
-                <div id="livePrices" class="live-prices">
-                    <div class="placeholder">Click Start to begin</div>
+                <div class="panel-content">
+                    <div id="livePrices" class="price-grid">
+                        <div class="terminal-placeholder">CLICK START TO BEGIN LIVE FEED</div>
+                    </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- Manage Stocks -->
-            <section class="section">
-                <div class="section-header">
-                    <h2>Manage Stocks</h2>
+            <!-- Right Panel - News & Management -->
+            <div class="panel-sidebar">
+                <!-- Watchlist Management -->
+                <div class="panel panel-compact">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span class="panel-icon">+</span>
+                            WATCHLIST
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="terminal-form">
+                            <input type="text" id="newSymbol" class="terminal-input" placeholder="TICKER" maxlength="10">
+                            <button id="addBtn" class="terminal-btn btn-small">ADD</button>
+                        </div>
+                        <div id="errorMsg" class="terminal-message error"></div>
+                        <div id="successMsg" class="terminal-message success"></div>
+                        <div id="stocksList" class="ticker-list"></div>
+                    </div>
                 </div>
-                <div class="add-form">
-                    <input type="text" id="newSymbol" placeholder="Add ticker (e.g., AAPL)" maxlength="10">
-                    <button id="addBtn" class="btn btn-sm">Add</button>
-                </div>
-                <div id="errorMsg" class="message error"></div>
-                <div id="successMsg" class="message success"></div>
-                <div id="stocksList" class="stocks-list"></div>
-            </section>
 
-            <!-- Latest News -->
-            <section class="section">
-                <div class="section-header">
-                    <h2>Latest News</h2>
-                    <button id="refreshNews" class="btn btn-sm">Refresh</button>
+                <!-- News Feed -->
+                <div class="panel panel-news">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span class="panel-icon">📰</span>
+                            MARKET NEWS
+                        </div>
+                        <button id="refreshNews" class="terminal-btn btn-small">REFRESH</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="newsArea" class="news-feed">
+                            <div class="terminal-placeholder">CLICK REFRESH TO LOAD NEWS</div>
+                        </div>
+                    </div>
                 </div>
-                <div id="newsArea" class="news-area">
-                    <div class="placeholder">Click Refresh to load news</div>
-                </div>
-            </section>
+            </div>
         </div>
     </div>
 

@@ -45,7 +45,7 @@ class StockManager {
         const container = document.getElementById('stocksList');
 
         if (this.stocks.length === 0) {
-            container.innerHTML = '<div class="placeholder">No stocks added</div>';
+            container.innerHTML = '<div class="terminal-placeholder" style="padding: 20px;">NO TICKERS</div>';
             return;
         }
 
@@ -126,11 +126,13 @@ class StockManager {
     startLivePrices() {
         this.isLiveActive = true;
         const toggleBtn = document.getElementById('toggleLive');
-        const statusEl = document.getElementById('liveStatus');
+        const statusDot = document.getElementById('liveStatus');
+        const statusText = document.getElementById('statusText');
 
-        toggleBtn.textContent = 'Stop';
-        toggleBtn.className = 'btn btn-sm btn-danger';
-        statusEl.className = 'status live';
+        toggleBtn.textContent = 'STOP';
+        toggleBtn.className = 'terminal-btn btn-small btn-danger';
+        statusDot.className = 'status-dot live';
+        statusText.textContent = 'LIVE';
 
         this.updateLivePrices();
         this.liveInterval = setInterval(() => {
@@ -141,11 +143,13 @@ class StockManager {
     stopLivePrices() {
         this.isLiveActive = false;
         const toggleBtn = document.getElementById('toggleLive');
-        const statusEl = document.getElementById('liveStatus');
+        const statusDot = document.getElementById('liveStatus');
+        const statusText = document.getElementById('statusText');
 
-        toggleBtn.textContent = 'Start';
-        toggleBtn.className = 'btn btn-sm btn-success';
-        statusEl.className = 'status';
+        toggleBtn.textContent = 'START';
+        toggleBtn.className = 'terminal-btn btn-small btn-primary';
+        statusDot.className = 'status-dot';
+        statusText.textContent = 'OFFLINE';
 
         if (this.liveInterval) {
             clearInterval(this.liveInterval);
@@ -227,7 +231,7 @@ class StockManager {
         const container = document.getElementById('livePrices');
 
         if (stocks.length === 0) {
-            container.innerHTML = '<div class="placeholder">No stocks in watchlist</div>';
+            container.innerHTML = '<div class="terminal-placeholder">NO STOCKS IN WATCHLIST</div>';
             return;
         }
 
@@ -297,7 +301,7 @@ class StockManager {
 
     async loadNews() {
         const newsArea = document.getElementById('newsArea');
-        newsArea.innerHTML = '<div class="placeholder">Loading news...</div>';
+        newsArea.innerHTML = '<div class="terminal-placeholder">LOADING...</div>';
 
         try {
             const response = await fetch('/api/news/preview');
@@ -306,10 +310,10 @@ class StockManager {
             if (data.success) {
                 this.renderNews(data.data);
             } else {
-                newsArea.innerHTML = '<div class="placeholder">Failed to load</div>';
+                newsArea.innerHTML = '<div class="terminal-placeholder">FAILED TO LOAD</div>';
             }
         } catch (error) {
-            newsArea.innerHTML = '<div class="placeholder">Error loading</div>';
+            newsArea.innerHTML = '<div class="terminal-placeholder">ERROR LOADING</div>';
         }
     }
 
@@ -317,7 +321,7 @@ class StockManager {
         const newsArea = document.getElementById('newsArea');
 
         if (news.length === 0) {
-            newsArea.innerHTML = '<div class="placeholder">No news available</div>';
+            newsArea.innerHTML = '<div class="terminal-placeholder">NO NEWS AVAILABLE</div>';
             return;
         }
 

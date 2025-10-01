@@ -14,16 +14,16 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // API Routes
-app.get('/api/stocks', (req, res) => {
+app.get('/api/stocks', async (req, res) => {
   try {
-    const symbols = configManager.getStockSymbols();
+    const symbols = await configManager.getStockSymbols();
     res.json({ success: true, symbols });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-app.post('/api/stocks', (req, res) => {
+app.post('/api/stocks', async (req, res) => {
   try {
     const { symbol } = req.body;
     if (!symbol) {
@@ -32,24 +32,24 @@ app.post('/api/stocks', (req, res) => {
     if (!configManager.validateStock(symbol)) {
       return res.status(400).json({ success: false, error: 'Invalid stock symbol format' });
     }
-    const symbols = configManager.addStock(symbol);
+    const symbols = await configManager.addStock(symbol);
     res.json({ success: true, symbols });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
 
-app.delete('/api/stocks/:symbol', (req, res) => {
+app.delete('/api/stocks/:symbol', async (req, res) => {
   try {
     const { symbol } = req.params;
-    const symbols = configManager.removeStock(symbol);
+    const symbols = await configManager.removeStock(symbol);
     res.json({ success: true, symbols });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
 
-app.put('/api/stocks', (req, res) => {
+app.put('/api/stocks', async (req, res) => {
   try {
     const { symbols } = req.body;
     if (!Array.isArray(symbols)) {
@@ -57,12 +57,12 @@ app.put('/api/stocks', (req, res) => {
     }
     const invalidSymbols = symbols.filter(s => !configManager.validateStock(s));
     if (invalidSymbols.length > 0) {
-      return res.status(400).json({ 
-        success: false, 
-        error: `Invalid symbols: ${invalidSymbols.join(', ')}` 
+      return res.status(400).json({
+        success: false,
+        error: `Invalid symbols: ${invalidSymbols.join(', ')}`
       });
     }
-    const updatedSymbols = configManager.updateStocks(symbols);
+    const updatedSymbols = await configManager.updateStocks(symbols);
     res.json({ success: true, symbols: updatedSymbols });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -71,7 +71,7 @@ app.put('/api/stocks', (req, res) => {
 
 app.get('/api/stocks/preview', async (req, res) => {
   try {
-    const symbols = configManager.getStockSymbols();
+    const symbols = await configManager.getStockSymbols();
     const stockData = await getStockData(symbols.slice(0, 5));
     res.json({ success: true, data: stockData });
   } catch (error) {

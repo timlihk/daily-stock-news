@@ -33,10 +33,21 @@ Edit `.env` with your configuration:
 - **EMAIL_PASS**: Your Gmail app password ([Create one here](https://myaccount.google.com/apppasswords))
 - **EMAIL_TO**: Recipient email (already set to tim@timli.net)
 - **NEWS_API_KEY**: Get a free API key from [NewsAPI](https://newsapi.org)
-- **STOCK_SYMBOLS**: Comma-separated list of stock symbols to track
+- **STOCK_SYMBOLS**: Comma-separated list of stock symbols to track (initial values)
 - **CRON_SCHEDULE**: When to send daily emails (default: 8 AM daily)
 
-### 3. Gmail Setup
+### 3. Redis Setup (Required for Railway Deployment)
+
+For persistent stock symbol storage on Railway:
+
+1. Go to your Railway project dashboard
+2. Click **"New"** → **"Database"** → **"Add Redis"**
+3. Railway will automatically create a `REDIS_URL` environment variable
+4. Your stock symbol edits will now persist across deployments!
+
+**Note**: Without Redis, stock symbol changes made through the web interface will be lost when Railway redeploys. The app will fall back to using the `.env` file (non-persistent on Railway).
+
+### 4. Gmail Setup
 
 To use Gmail for sending emails:
 
@@ -46,7 +57,7 @@ To use Gmail for sending emails:
    - Select "Mail" and generate a password
    - Use this password as EMAIL_PASS in your .env file
 
-### 4. Run the Application
+### 5. Run the Application
 
 #### Test Mode (Send one email immediately):
 ```bash
@@ -72,8 +83,12 @@ Access the web interface at http://localhost:3000 to:
 
 ### Stock Symbols
 You can manage stocks through:
-1. **Web Interface**: Visit http://localhost:3000
-2. **Environment File**: Edit `STOCK_SYMBOLS` in your `.env` file:
+1. **Web Interface** (Recommended): Visit http://localhost:3000 or your Railway URL
+   - Changes persist automatically when Redis is configured
+   - Survives deployments and restarts
+2. **Environment File**: Edit `STOCK_SYMBOLS` in Railway's environment variables dashboard
+   - For initial setup or bulk changes
+   - Also works in local `.env` file for development
 ```
 STOCK_SYMBOLS=AAPL,GOOGL,MSFT,TSLA,AMZN,META,NVDA
 ```

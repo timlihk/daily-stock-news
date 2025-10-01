@@ -12,19 +12,20 @@ const config = configManager.getConfig();
 
 async function generateAndSendReport() {
   console.log(`[${new Date().toISOString()}] Starting daily stock report generation...`);
-  
+
   try {
-    // Get latest config
+    // Get latest config and stock symbols from Redis
     const currentConfig = configManager.getConfig();
-    
+    const stockSymbols = await configManager.getStockSymbols();
+
     // Fetch stock data
     console.log('Fetching stock data...');
-    const stockData = await getStockData(currentConfig.stockSymbols);
+    const stockData = await getStockData(stockSymbols);
     console.log(`Fetched data for ${stockData.length} stocks`);
     
     // Fetch news
     console.log('Fetching news articles...');
-    const newsData = await getStockNews(currentConfig.stockSymbols, currentConfig.newsApiKey);
+    const newsData = await getStockNews(stockSymbols, currentConfig.newsApiKey);
     console.log(`Fetched ${newsData.length} news articles`);
     
     // Create email

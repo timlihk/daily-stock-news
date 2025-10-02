@@ -88,6 +88,7 @@ body {
     gap: 0;
     flex: 0 0 auto;
     min-height: 0;
+    max-height: 500px;
 }
 
 /* Panels */
@@ -100,7 +101,6 @@ body {
 }
 
 .panel-main {
-    max-height: 500px;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -109,7 +109,6 @@ body {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    max-height: 500px;
 }
 
 .panel-news-bottom {

@@ -166,7 +166,12 @@ class StockManager {
 
             if (data.success) {
                 this.currentStockData = data.data;
-                this.renderLivePrices(this.currentStockData);
+                // Apply current sort if one is active
+                if (this.sortColumn) {
+                    this.applySortAndRender();
+                } else {
+                    this.renderLivePrices(this.currentStockData);
+                }
             }
         } catch (error) {
             console.error('Error updating live prices:', error);
@@ -183,6 +188,10 @@ class StockManager {
             this.sortDirection = 'asc';
         }
 
+        this.applySortAndRender();
+    }
+
+    applySortAndRender() {
         const sortedData = [...this.currentStockData].sort((a, b) => {
             // Filter out error stocks
             if (a.error) return 1;
@@ -190,7 +199,7 @@ class StockManager {
 
             let aVal, bVal;
 
-            switch(column) {
+            switch(this.sortColumn) {
                 case 'ticker':
                     aVal = a.symbol;
                     bVal = b.symbol;

@@ -115,7 +115,7 @@ body {
 .panel-news-bottom {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     border-right: none;
-    flex: 0 0 250px;
+    flex: 1;
     overflow: hidden;
 }
 

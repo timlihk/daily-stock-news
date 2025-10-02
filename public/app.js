@@ -7,6 +7,8 @@ class StockManager {
         this.sortColumn = null;
         this.sortDirection = 'asc';
         this.currentStockData = [];
+        this.allNewsData = [];
+        this.newsFilter = 'all';
         this.init();
     }
 
@@ -23,6 +25,10 @@ class StockManager {
             if (e.key === 'Enter') this.addStock();
         });
         document.getElementById('refreshNews').addEventListener('click', () => this.loadNews());
+        document.getElementById('newsFilter').addEventListener('change', (e) => {
+            this.newsFilter = e.target.value;
+            this.filterAndRenderNews();
+        });
         document.getElementById('rowLimit').addEventListener('change', (e) => {
             this.rowLimit = parseInt(e.target.value);
             // Re-render with new limit if data exists
@@ -60,6 +66,30 @@ class StockManager {
                 <button class="remove-btn" onclick="stockManager.removeStock('${symbol}')">&times;</button>
             </span>
         `).join('');
+
+        // Update news filter dropdown
+        this.updateNewsFilterDropdown();
+    }
+
+    updateNewsFilterDropdown() {
+        const filterSelect = document.getElementById('newsFilter');
+        const currentValue = filterSelect.value;
+
+        filterSelect.innerHTML = '<option value="all">ALL</option>';
+        this.stocks.forEach(symbol => {
+            const option = document.createElement('option');
+            option.value = symbol;
+            option.textContent = symbol;
+            filterSelect.appendChild(option);
+        });
+
+        // Restore previous selection if it still exists
+        if (currentValue !== 'all' && this.stocks.includes(currentValue)) {
+            filterSelect.value = currentValue;
+        } else {
+            filterSelect.value = 'all';
+            this.newsFilter = 'all';
+        }
     }
 
     async addStock() {
@@ -319,13 +349,24 @@ class StockManager {
             const data = await response.json();
 
             if (data.success) {
-                this.renderNews(data.data);
+                this.allNewsData = data.data;
+                this.filterAndRenderNews();
             } else {
                 newsArea.innerHTML = '<div class="terminal-placeholder">FAILED TO LOAD</div>';
             }
         } catch (error) {
             newsArea.innerHTML = '<div class="terminal-placeholder">ERROR LOADING</div>';
         }
+    }
+
+    filterAndRenderNews() {
+        let filteredNews = this.allNewsData;
+
+        if (this.newsFilter !== 'all') {
+            filteredNews = this.allNewsData.filter(article => article.symbol === this.newsFilter);
+        }
+
+        this.renderNews(filteredNews);
     }
 
     renderNews(news) {

@@ -72,11 +72,16 @@
                         <span class="panel-icon">📰</span>
                         MARKET NEWS
                     </div>
-                    <button id="refreshNews" class="terminal-btn btn-small">REFRESH</button>
+                    <div class="panel-controls">
+                        <select id="newsFilter" class="terminal-select">
+                            <option value="all">ALL</option>
+                        </select>
+                        <button id="refreshNews" class="terminal-btn btn-small">REFRESH</button>
+                    </div>
                 </div>
                 <div class="panel-content">
                     <div id="newsArea" class="news-feed">
-                        <div class="terminal-placeholder">CLICK REFRESH TO LOAD NEWS</div>
+                        <div class="terminal-placeholder">LOADING...</div>
                     </div>
                 </div>
             </div>

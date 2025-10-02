@@ -4,37 +4,37 @@ export async function getStockNews(symbols, apiKey) {
   const allNews = [];
   const today = new Date();
   const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-  
+
   for (const symbol of symbols) {
     try {
-      const response = await axios.get('https://newsapi.org/v2/everything', {
+      const toDate = today.toISOString().split('T')[0];
+      const fromDate = weekAgo.toISOString().split('T')[0];
+
+      const response = await axios.get(`https://finnhub.io/api/v1/company-news`, {
         params: {
-          q: symbol,
-          from: weekAgo.toISOString().split('T')[0],
-          to: today.toISOString().split('T')[0],
-          sortBy: 'relevancy',
-          pageSize: 5,
-          apiKey: apiKey,
-          language: 'en'
+          symbol: symbol,
+          from: fromDate,
+          to: toDate,
+          token: apiKey
         }
       });
-      
-      const articles = response.data.articles.map(article => ({
+
+      const articles = response.data.slice(0, 5).map(article => ({
         symbol: symbol,
-        title: article.title,
-        description: article.description,
+        title: article.headline,
+        description: article.summary,
         url: article.url,
-        source: article.source.name,
-        publishedAt: new Date(article.publishedAt),
-        image: article.urlToImage
+        source: article.source,
+        publishedAt: new Date(article.datetime * 1000), // Finnhub uses Unix timestamp
+        image: article.image
       }));
-      
+
       allNews.push(...articles);
     } catch (error) {
       console.error(`Error fetching news for ${symbol}:`, error.message);
     }
   }
-  
+
   // Sort by date and limit to most recent
   allNews.sort((a, b) => b.publishedAt - a.publishedAt);
   return allNews.slice(0, 20);

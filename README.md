@@ -50,7 +50,7 @@ Edit `.env` with your configuration:
 - **EMAIL_USER**: Your Gmail address (for sending emails)
 - **EMAIL_PASS**: Your Gmail app password ([Create one here](https://myaccount.google.com/apppasswords))
 - **EMAIL_TO**: Recipient email address
-- **NEWS_API_KEY**: Get a free API key from [NewsAPI](https://newsapi.org)
+- **NEWS_API_KEY**: Get a free API key from [Finnhub](https://finnhub.io/register)
 - **STOCK_SYMBOLS**: Comma-separated list of stock symbols (initial values)
 - **CRON_SCHEDULE**: When to send daily emails (default: `0 8 * * *` = 8 AM daily)
 
@@ -241,9 +241,10 @@ The application provides REST API endpoints:
 - Verify `EMAIL_USER` and `EMAIL_PASS` in environment variables
 
 ### No news found
-- Verify your NewsAPI key is valid
-- Check you haven't exceeded NewsAPI quota (free tier has limits)
+- Verify your Finnhub API key is valid (get one at [finnhub.io](https://finnhub.io/register))
+- Finnhub free tier allows 60 calls/minute (very generous)
 - Some stocks may have limited news coverage
+- Check that stock symbols are valid US ticker symbols
 
 ### Stock data errors
 - Some international stocks may not be available through Yahoo Finance
@@ -265,7 +266,7 @@ The application provides REST API endpoints:
 
 - **Backend**: Node.js with Express
 - **Stock Data**: Yahoo Finance API (via yahoo-finance2)
-- **News**: NewsAPI
+- **News**: Finnhub API
 - **Email**: Nodemailer
 - **Scheduling**: node-cron
 - **Database**: Redis (for persistent storage)

@@ -14,6 +14,7 @@ class StockManager {
         await this.loadStocks();
         this.setupEventListeners();
         this.startLivePrices();
+        this.loadNews();
     }
 
     setupEventListeners() {
@@ -129,12 +130,9 @@ class StockManager {
 
     startLivePrices() {
         this.isLiveActive = true;
-        const toggleBtn = document.getElementById('toggleLive');
         const statusDot = document.getElementById('liveStatus');
         const statusText = document.getElementById('statusText');
 
-        toggleBtn.textContent = 'STOP';
-        toggleBtn.className = 'terminal-btn btn-small btn-danger';
         statusDot.className = 'status-dot live';
         statusText.textContent = 'LIVE';
 

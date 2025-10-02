@@ -26,7 +26,7 @@ body {
 .top-bar {
     background: #000;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 16px 24px;
+    padding: 8px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -77,7 +77,7 @@ body {
     flex-direction: column;
     gap: 0;
     padding: 0;
-    height: calc(100vh - 57px);
+    height: calc(100vh - 33px);
     overflow: hidden;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -121,7 +121,7 @@ body {
 .panel-header {
     background: #000;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 12px 16px;
+    padding: 8px 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -238,7 +238,7 @@ body {
 
 .price-table th {
     background: #000;
-    padding: 12px 16px;
+    padding: 6px 12px;
     text-align: left;
     font-size: 14px;
     font-weight: 700;
@@ -261,7 +261,7 @@ body {
 
 .price-table td {
     background: #000;
-    padding: 12px 16px;
+    padding: 6px 12px;
     font-size: 14px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -310,7 +310,7 @@ body {
 
 /* Forms */
 .terminal-form {
-    padding: 16px;
+    padding: 8px 12px;
     display: flex;
     gap: 8px;
 }
@@ -341,8 +341,8 @@ body {
 
 /* Messages */
 .terminal-message {
-    padding: 8px 16px;
-    margin: 0 16px 8px;
+    padding: 6px 12px;
+    margin: 0 12px 6px;
     border-radius: 0;
     font-size: 14px;
     font-weight: 400;
@@ -365,10 +365,10 @@ body {
 
 /* Ticker List */
 .ticker-list {
-    padding: 12px 16px;
+    padding: 8px 12px;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     max-height: 200px;
     overflow-y: auto;
 }
@@ -376,8 +376,8 @@ body {
 .stock-tag {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
+    gap: 6px;
+    padding: 4px 8px;
     background: #000;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 0;
@@ -420,7 +420,7 @@ body {
 }
 
 .news-item {
-    padding: 16px;
+    padding: 8px 12px;
     background: #000;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.1s;
@@ -434,7 +434,7 @@ body {
 .news-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     align-items: center;
 }
 

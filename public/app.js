@@ -13,6 +13,7 @@ class StockManager {
     async init() {
         await this.loadStocks();
         this.setupEventListeners();
+        this.startLivePrices();
     }
 
     setupEventListeners() {
@@ -20,7 +21,6 @@ class StockManager {
         document.getElementById('newSymbol').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.addStock();
         });
-        document.getElementById('toggleLive').addEventListener('click', () => this.toggleLivePrices());
         document.getElementById('refreshNews').addEventListener('click', () => this.loadNews());
         document.getElementById('rowLimit').addEventListener('change', (e) => {
             this.rowLimit = parseInt(e.target.value);

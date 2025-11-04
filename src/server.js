@@ -117,6 +117,117 @@ app.get('/api/config', (req, res) => {
   }
 });
 
+// Store reference to email generation function
+let emailGeneratorFunction = null;
+let lastEmailSent = null;
+let lastEmailStatus = null;
+
+export function setEmailGenerator(fn) {
+  emailGeneratorFunction = fn;
+}
+
+export function updateEmailStatus(status) {
+  lastEmailSent = new Date().toISOString();
+  lastEmailStatus = status;
+}
+
+// Manual email trigger endpoint for testing
+app.post('/api/email/send', async (req, res) => {
+  try {
+    console.log(`[${new Date().toISOString()}] Manual email trigger received`);
+
+    if (!emailGeneratorFunction) {
+      return res.status(503).json({
+        success: false,
+        error: 'Email function not initialized'
+      });
+    }
+
+    await emailGeneratorFunction();
+
+    res.json({
+      success: true,
+      message: 'Email sent successfully',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error in manual email trigger:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Health check endpoint with timezone and cron info
+app.get('/api/health', (req, res) => {
+  try {
+    const config = configManager.getConfig();
+    const now = new Date();
+
+    const healthInfo = {
+      status: 'running',
+      timestamp: now.toISOString(),
+      serverTime: {
+        iso: now.toISOString(),
+        utc: now.toUTCString(),
+        local: now.toString(),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timezoneOffset: now.getTimezoneOffset()
+      },
+      cron: {
+        schedule: config.cronSchedule,
+        description: describeCronSchedule(config.cronSchedule)
+      },
+      lastEmail: {
+        sent: lastEmailSent,
+        status: lastEmailStatus
+      },
+      config: {
+        hasEmailConfig: !!(config.emailUser && config.emailPass),
+        hasNewsApi: !!config.newsApiKey,
+        emailTo: config.emailTo,
+        stockCount: config.stockSymbols.length
+      }
+    };
+
+    res.json({ success: true, health: healthInfo });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+function describeCronSchedule(schedule) {
+  const parts = schedule.split(' ');
+  if (parts.length !== 5) return schedule;
+
+  const [minute, hour, dayOfMonth, month, dayOfWeek] = parts;
+
+  let description = `At ${hour.padStart(2, '0')}:${minute.padStart(2, '0')} UTC`;
+
+  if (dayOfWeek !== '*') {
+    description += ` on ${getDayName(dayOfWeek)}`;
+  } else if (dayOfMonth !== '*') {
+    description += ` on day ${dayOfMonth} of the month`;
+  } else {
+    description += ' every day';
+  }
+
+  return description;
+}
+
+function getDayName(dayOfWeek) {
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  if (dayOfWeek.includes('-')) {
+    const [start, end] = dayOfWeek.split('-').map(d => parseInt(d));
+    return `${days[start]} to ${days[end]}`;
+  }
+  if (dayOfWeek.includes(',')) {
+    return dayOfWeek.split(',').map(d => days[parseInt(d)]).join(', ');
+  }
+  return days[parseInt(dayOfWeek)] || dayOfWeek;
+}
+
 export function startWebServer() {
   app.listen(PORT, () => {
     console.log(`Web interface available at http://localhost:${PORT}`);

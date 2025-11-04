@@ -232,6 +232,47 @@ The application provides REST API endpoints:
 - `GET /api/stocks/live` - Get real-time stock data
 - `GET /api/news/preview` - Get latest news for watchlist
 - `GET /api/config` - Get configuration status
+- `GET /api/health` - Health check with email status and system info
+- `POST /api/email/send` - Manually trigger email report
+
+## Monitoring & Debugging
+
+### Health Check Endpoint
+
+Visit `/api/health` on your Railway deployment to check:
+- Last email send attempt and success time
+- Cron schedule configuration
+- Server timezone
+- Redis connection status
+- Email configuration status
+
+Example: `https://your-app.railway.app/api/health`
+
+### Manual Email Trigger
+
+You can manually trigger an email send without waiting for the cron schedule:
+
+```bash
+curl -X POST https://your-app.railway.app/api/email/send
+```
+
+Or visit your app's web interface and use the browser console:
+```javascript
+fetch('/api/email/send', { method: 'POST' })
+  .then(r => r.json())
+  .then(console.log)
+```
+
+### Timezone Configuration
+
+**IMPORTANT**: Railway servers run in UTC timezone by default. Your `CRON_SCHEDULE` will execute in UTC time.
+
+To schedule emails for 8 AM in your local timezone:
+- **PST (UTC-8)**: Set `CRON_SCHEDULE=0 16 * * *` (4 PM UTC = 8 AM PST)
+- **EST (UTC-5)**: Set `CRON_SCHEDULE=0 13 * * *` (1 PM UTC = 8 AM EST)
+- **GMT/UTC**: Set `CRON_SCHEDULE=0 8 * * *` (8 AM UTC)
+
+You can also set the `TZ` environment variable to display logs in your local timezone (this doesn't affect when cron runs, only log timestamps).
 
 ## Troubleshooting
 
@@ -239,6 +280,10 @@ The application provides REST API endpoints:
 - Check your Gmail app password is correct
 - Ensure 2FA is enabled on your Google account
 - Verify `EMAIL_USER` and `EMAIL_PASS` in environment variables
+- **Check the health endpoint** at `/api/health` to see last attempt and any errors
+- **Check Railway logs** in Railway dashboard → Deployments → View logs
+- **Test manually** using `POST /api/email/send` to trigger an email immediately
+- **Verify timezone**: Make sure your `CRON_SCHEDULE` is set for UTC time, not your local time
 
 ### No news found
 - Verify your Finnhub API key is valid (get one at [finnhub.io](https://finnhub.io/register))

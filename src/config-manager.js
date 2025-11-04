@@ -171,6 +171,32 @@ export class ConfigManager {
     const validPattern = /^[A-Z0-9\.\-]{1,10}$/;
     return validPattern.test(symbol.toUpperCase());
   }
+
+  async saveEmailStatus(status) {
+    try {
+      if (this.redisConnected && this.redisClient) {
+        await this.redisClient.set('email_status', JSON.stringify({
+          ...status,
+          timestamp: new Date().toISOString()
+        }));
+        console.log('Email status saved to Redis');
+      }
+    } catch (error) {
+      console.error('Failed to save email status to Redis:', error.message);
+    }
+  }
+
+  async getEmailStatus() {
+    try {
+      if (this.redisConnected && this.redisClient) {
+        const status = await this.redisClient.get('email_status');
+        return status ? JSON.parse(status) : null;
+      }
+    } catch (error) {
+      console.error('Failed to get email status from Redis:', error.message);
+    }
+    return null;
+  }
 }
 
 export default new ConfigManager();

@@ -11,6 +11,15 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Store reference to generateAndSendReport function
+let generateAndSendReportFn = null;
+let emailStatusRef = null;
+
+export function setEmailFunctions(generateFn, statusRef) {
+  generateAndSendReportFn = generateFn;
+  emailStatusRef = statusRef;
+}
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
@@ -117,9 +126,69 @@ app.get('/api/config', (req, res) => {
   }
 });
 
+// Health check endpoint with email status
+app.get('/api/health', async (req, res) => {
+  try {
+    const config = configManager.getConfig();
+    const redisStatus = await configManager.getEmailStatus();
+
+    const healthData = {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      timezone: process.env.TZ || 'UTC',
+      uptime: process.uptime(),
+      email: {
+        configured: !!(config.emailUser && config.emailPass),
+        recipient: config.emailTo,
+        cronSchedule: config.cronSchedule,
+        ...(emailStatusRef || {}),
+        ...(redisStatus ? { redis: redisStatus } : {})
+      },
+      redis: {
+        connected: configManager.redisConnected
+      },
+      environment: {
+        nodeVersion: process.version,
+        platform: process.platform
+      }
+    };
+
+    res.json({ success: true, health: healthData });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Manual email trigger endpoint
+app.post('/api/email/send', async (req, res) => {
+  try {
+    if (!generateAndSendReportFn) {
+      return res.status(503).json({
+        success: false,
+        error: 'Email service not initialized'
+      });
+    }
+
+    console.log('Manual email trigger requested');
+
+    // Run the email generation in background
+    generateAndSendReportFn().catch(err =>
+      console.error('Error in manual email send:', err)
+    );
+
+    res.json({
+      success: true,
+      message: 'Email generation started. Check /api/health for status.'
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 export function startWebServer() {
   app.listen(PORT, () => {
     console.log(`Web interface available at http://localhost:${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/api/health`);
   });
 }
 
